@@ -1,0 +1,45 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'application'
+
+repositories {
+	mavenCentral()
+	maven { url "http://maven.springframework.org/release" }
+	maven { url "http://maven.springframework.org/milestone" }
+}
+
+dependencies {
+
+	final SPRING_VERSION = '3.2.1.RELEASE'
+	final BATCH_VERSION = '2.2.0.M1'
+	final SLF4J_VERSION = '1.7.2'
+
+	compile group: 'org.springframework.batch', name: 'spring-batch-core', version: BATCH_VERSION
+	compile group: 'org.springframework', name: 'spring-context', version: SPRING_VERSION
+	compile group: 'org.springframework', name: 'spring-tx', version: SPRING_VERSION
+	compile group: 'org.springframework', name: 'spring-jdbc', version: SPRING_VERSION
+	
+	// Bridge commons-logging to slf4j, then use log4j bindings
+	runtime group: 'org.slf4j', name: 'jcl-over-slf4j', version: SLF4J_VERSION
+	runtime group: 'org.slf4j', name: 'slf4j-api', version: SLF4J_VERSION
+	runtime group: 'org.slf4j', name: 'slf4j-log4j12', version: SLF4J_VERSION
+	compile group: 'log4j', name: 'log4j', version: '1.2.14'
+	
+	// Save these for tests in the future
+	//testCompile group: 'org.springframework.batch', name: 'spring-batch-test', version: BATCH_VERSION
+	//testCompile group: 'org.springframework', name: 'spring-test', version: SPRING_VERSION
+}
+
+configurations {
+	all*.exclude module: 'commons-logging' // we use slf4j -> log4j instead
+}
+
+mainClassName = 'org.springframework.batch.core.launch.support.CommandLineJobRunner'
+
+run {
+	args 'launch-context.xml', 'retrySample'
+}
+
+task wrapper(type: Wrapper) {
+	gradleVersion = '1.5'
+}
